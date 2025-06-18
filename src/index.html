@@ -1,412 +1,118 @@
 <!DOCTYPE html>
 <html ng-app="todoApp">
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>AngularJS Todo App</title>
+
+    <!-- External Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .add-todo {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        .add-todo input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .add-todo button {
-            padding: 12px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .add-todo button:hover {
-            background: #0056b3;
-        }
-        .filters {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .filters button {
-            padding: 8px 16px;
-            margin: 0 5px;
-            border: 2px solid #007bff;
-            background: white;
-            color: #007bff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .filters button.active {
-            background: #007bff;
-            color: white;
-        }
-        .todo-list {
-            list-style: none;
-            padding: 0;
-        }
-        .todo-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            border-left: 4px solid #007bff;
-        }
-        .todo-item.completed {
-            opacity: 0.6;
-            border-left-color: #28a745;
-        }
-        .todo-item input[type="checkbox"] {
-            margin-right: 15px;
-            transform: scale(1.2);
-        }
-        .todo-text {
-            flex: 1;
-            font-size: 16px;
-        }
-        .todo-text.completed {
-            text-decoration: line-through;
-            color: #666;
-        }
-        .todo-date {
-            color: #666;
-            font-size: 12px;
-            margin-right: 15px;
-        }
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .delete-btn:hover {
-            background: #c82333;
-        }
-        .stats {
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: #e9ecef;
-            border-radius: 5px;
-        }
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 5px;
-            color: white;
-            font-weight: bold;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .notification.show {
-            opacity: 1;
-        }
-        .notification.success {
-            background: #28a745;
-        }
-        .notification.error {
-            background: #dc3545;
-        }
-        .empty-state {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            padding: 40px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container" ng-controller="TodoController">
-        <h1>My Todo List</h1>
-        
-        <!-- Notification -->
-        <div class="notification" ng-class="{'show': notification.show, 'success': notification.type === 'success', 'error': notification.type === 'error'}">
-            {{ notification.message }}
-        </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
 
-        <!-- Add Todo Form -->
-        <div class="add-todo">
-            <input type="text" 
-                   ng-model="newTodo" 
-                   placeholder="Enter a new todo..." 
-                   ng-keypress="$event.keyCode === 13 && addTodo()">
-            <button ng-click="addTodo()" ng-disabled="!newTodo.trim()">Add Todo</button>
-        </div>
+    <!-- App Styles -->
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body ng-controller="TodoController as vm">
+    <div class="container">
+      <h1>My Todo List</h1>
 
-        <!-- Filters -->
-        <div class="filters">
-            <button ng-click="setFilter('all')" ng-class="{'active': currentFilter === 'all'}">
-                All ({{ getTotalCount() }})
-            </button>
-            <button ng-click="setFilter('active')" ng-class="{'active': currentFilter === 'active'}">
-                Active ({{ getActiveCount() }})
-            </button>
-            <button ng-click="setFilter('completed')" ng-class="{'active': currentFilter === 'completed'}">
-                Completed ({{ getCompletedCount() }})
-            </button>
-        </div>
+      <!-- Notification -->
+      <div
+        class="notification"
+        ng-class="{
+          'show': vm.notification.show,
+          'success': vm.notification.type === 'success',
+          'error': vm.notification.type === 'error'
+        }"
+      >
+        {{ vm.notification.message }}
+      </div>
 
-        <!-- Todo List -->
-        <ul class="todo-list" ng-show="getFilteredTodos().length > 0">
-            <li class="todo-item" 
-                ng-repeat="todo in getFilteredTodos() track by todo.id"
-                ng-class="{'completed': todo.completed}">
-                <input type="checkbox" 
-                       ng-model="todo.completed" 
-                       ng-change="toggleTodo(todo)">
-                <span class="todo-text" ng-class="{'completed': todo.completed}">
-                    {{ todo.text }}
-                </span>
-                <span class="todo-date">{{ todo.createdAt | date:'short' }}</span>
-                <button class="delete-btn" ng-click="deleteTodo(todo.id)">Delete</button>
-            </li>
-        </ul>
+      <!-- Add Todo Form -->
+      <div class="add-todo">
+        <form ng-submit="vm.addTodo()" name="todoForm">
+          <input
+            style="width: 582px"
+            type="text"
+            ng-model="vm.newTodo.text"
+            placeholder="Enter a new todo..."
+            ng-keypress="$event.keyCode === 13 && vm.addTodo()"
+            required
+          />
+          <button type="submit" ng-disabled="!vm.newTodo.text.trim()">
+            Add Todo
+          </button>
+        </form>
+      </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" ng-show="getFilteredTodos().length === 0">
-            <p ng-show="currentFilter === 'all'">No todos yet. Add one above!</p>
-            <p ng-show="currentFilter === 'active'">No active todos. Great job!</p>
-            <p ng-show="currentFilter === 'completed'">No completed todos yet.</p>
-        </div>
+      <!-- Filters -->
+      <div class="filters">
+        <button
+          ng-click="vm.setFilter('all')"
+          ng-class="{ 'active': vm.currentFilter === 'all' }"
+        >
+          All ({{ vm.getTotalCount() }})
+        </button>
+        <button
+          ng-click="vm.setFilter('active')"
+          ng-class="{ 'active': vm.currentFilter === 'active' }"
+        >
+          Active ({{ vm.getActiveCount() }})
+        </button>
+        <button
+          ng-click="vm.setFilter('completed')"
+          ng-class="{ 'active': vm.currentFilter === 'completed' }"
+        >
+          Completed ({{ vm.getCompletedCount() }})
+        </button>
+      </div>
 
-        <!-- Statistics -->
-        <div class="stats">
-            <strong>Statistics:</strong>
-            Total: {{ getTotalCount() }} | 
-            Active: {{ getActiveCount() }} | 
-            Completed: {{ getCompletedCount() }} |
-            Completion Rate: {{ getCompletionRate() }}%
-        </div>
+      <!-- Todo List -->
+      <ul class="todo-list" ng-show="vm.getFilteredTodos().length > 0">
+        <li
+          class="todo-item"
+          ng-repeat="todo in vm.getFilteredTodos() track by todo.id"
+          ng-class="{ 'completed': todo.completed }"
+        >
+          <input
+            type="checkbox"
+            ng-model="todo.completed"
+            ng-change="vm.toggleTodo(todo.id)"
+          />
+          <span class="todo-text" ng-class="{ 'completed': todo.completed }">
+            {{ todo.text }}
+          </span>
+          <span class="todo-date">{{ todo.createdAt | date:'short' }}</span>
+          <button class="delete-btn" ng-click="vm.deleteTodo(todo.id)">
+            Delete
+          </button>
+        </li>
+      </ul>
+
+      <!-- Empty State -->
+      <div class="empty-state" ng-show="vm.getFilteredTodos().length === 0">
+        <p ng-show="vm.currentFilter === 'all'">No todos yet. Add one above!</p>
+        <p ng-show="vm.currentFilter === 'active'">
+          No active todos. Great job!
+        </p>
+        <p ng-show="vm.currentFilter === 'completed'">
+          No completed todos yet.
+        </p>
+      </div>
+
+      <!-- Statistics -->
+      <div class="stats">
+        <strong>Statistics:</strong>
+        Total: {{ vm.getTotalCount() }} | Active: {{ vm.getActiveCount() }} |
+        Completed: {{ vm.getCompletedCount() }} | Completion Rate: {{
+        vm.getCompletionRate() }}%
+      </div>
     </div>
 
-    <script>
-        // Main App Module
-        angular.module('todoApp', [])
-        
-        // Todo Service
-        .service('TodoService', function() {
-            var todos = [];
-            var nextId = 1;
-
-            this.getAllTodos = function() {
-                return todos;
-            };
-
-            this.addTodo = function(text) {
-                var todo = {
-                    id: nextId++,
-                    text: text,
-                    completed: false,
-                    createdAt: new Date()
-                };
-                todos.push(todo);
-                return todo;
-            };
-
-            this.deleteTodo = function(id) {
-                for (var i = 0; i < todos.length; i++) {
-                    if (todos[i].id === id) {
-                        return todos.splice(i, 1)[0];
-                    }
-                }
-                return null;
-            };
-
-            this.toggleTodo = function(todo) {
-                todo.completed = !todo.completed;
-                return todo;
-            };
-
-            this.getStats = function() {
-                var total = todos.length;
-                var completed = todos.filter(function(todo) {
-                    return todo.completed;
-                }).length;
-                var active = total - completed;
-
-                return {
-                    total: total,
-                    completed: completed,
-                    active: active,
-                    completionRate: total > 0 ? Math.round((completed / total) * 100) : 0
-                };
-            };
-        })
-
-        // Notification Service
-        .service('NotificationService', function($timeout) {
-            var notification = {
-                show: false,
-                message: '',
-                type: 'success'
-            };
-
-            this.getNotification = function() {
-                return notification;
-            };
-
-            this.showSuccess = function(message) {
-                this.show(message, 'success');
-            };
-
-            this.showError = function(message) {
-                this.show(message, 'error');
-            };
-
-            this.show = function(message, type) {
-                notification.message = message;
-                notification.type = type || 'success';
-                notification.show = true;
-
-                $timeout(function() {
-                    notification.show = false;
-                }, 3000);
-            };
-        })
-
-        // Storage Service (simulated localStorage)
-        .service('StorageService', function() {
-            var storage = {};
-
-            this.get = function(key) {
-                return storage[key];
-            };
-
-            this.set = function(key, value) {
-                storage[key] = value;
-            };
-
-            this.remove = function(key) {
-                delete storage[key];
-            };
-        })
-
-        // Main Controller
-        .controller('TodoController', function($scope, TodoService, NotificationService, StorageService) {
-            // Initialize scope variables
-            $scope.todos = TodoService.getAllTodos();
-            $scope.newTodo = '';
-            $scope.currentFilter = 'all';
-            $scope.notification = NotificationService.getNotification();
-
-            // Add new todo
-            $scope.addTodo = function() {
-                if ($scope.newTodo && $scope.newTodo.trim()) {
-                    var todo = TodoService.addTodo($scope.newTodo.trim());
-                    $scope.newTodo = '';
-                    NotificationService.showSuccess('Todo added successfully!');
-                }
-            };
-
-            // Delete todo
-            $scope.deleteTodo = function(id) {
-                var deletedTodo = TodoService.deleteTodo(id);
-                if (deletedTodo) {
-                    NotificationService.showSuccess('Todo deleted: ' + deletedTodo.text);
-                }
-            };
-
-            // Toggle todo completion
-            $scope.toggleTodo = function(todo) {
-                TodoService.toggleTodo(todo);
-                var message = todo.completed ? 'Todo completed!' : 'Todo marked as active!';
-                NotificationService.showSuccess(message);
-            };
-
-            // Set filter
-            $scope.setFilter = function(filter) {
-                $scope.currentFilter = filter;
-                StorageService.set('todoFilter', filter);
-            };
-
-            // Get filtered todos
-            $scope.getFilteredTodos = function() {
-                switch ($scope.currentFilter) {
-                    case 'active':
-                        return $scope.todos.filter(function(todo) {
-                            return !todo.completed;
-                        });
-                    case 'completed':
-                        return $scope.todos.filter(function(todo) {
-                            return todo.completed;
-                        });
-                    default:
-                        return $scope.todos;
-                }
-            };
-
-            // Statistics functions
-            $scope.getTotalCount = function() {
-                return TodoService.getStats().total;
-            };
-
-            $scope.getActiveCount = function() {
-                return TodoService.getStats().active;
-            };
-
-            $scope.getCompletedCount = function() {
-                return TodoService.getStats().completed;
-            };
-
-            $scope.getCompletionRate = function() {
-                return TodoService.getStats().completionRate;
-            };
-
-            // Watch for changes in todos array
-            $scope.$watchCollection('todos', function(newTodos, oldTodos) {
-                if (newTodos !== oldTodos) {
-                    console.log('Todos changed:', TodoService.getStats());
-                }
-            });
-
-            // Initialize with sample data
-            $scope.$evalAsync(function() {
-                TodoService.addTodo('Learn AngularJS');
-                TodoService.addTodo('Build a todo app');
-                TodoService.addTodo('Master $scope and services');
-                
-                // Mark first todo as completed
-                $scope.todos[0].completed = true;
-                
-                NotificationService.showSuccess('Welcome to your Todo App!');
-            });
-
-            // Load saved filter
-            var savedFilter = StorageService.get('todoFilter');
-            if (savedFilter) {
-                $scope.currentFilter = savedFilter;
-            }
-        });
-    </script>
-</body>
+    <!-- App Scripts -->
+    <script src="js/services/app.js"></script>
+    <script src="js/services/notificationService.js"></script>
+    <script src="js/services/storageService.js"></script>
+    <script src="js/services/todoService.js"></script>
+    <script src="js/controllers/todoController.js"></script>
+  </body>
 </html>

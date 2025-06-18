@@ -5,14 +5,16 @@
 
   TodoController.$inject = [
     "$scope",
-    "TodoService",
+    // "TodoService",
+    "Todo2Service",
     "NotificationService",
     "StorageService",
   ];
 
   function TodoController(
     $scope,
-    TodoService,
+    // TodoService,
+    Todo2Service,
     NotificationService,
     StorageService
   ) {
@@ -40,6 +42,10 @@
     activate();
 
     function activate() {
+      if (Todo2Service.getAllTodos().length === 0) {
+        loadSampleData();
+      }
+
       loadTodos();
       resetForm();
 
@@ -51,7 +57,7 @@
     }
 
     function loadTodos() {
-      vm.todos = TodoService.getAllTodos();
+      vm.todos = Todo2Service.getAllTodos();
     }
 
     function resetForm() {
@@ -62,7 +68,7 @@
 
     function addTodo() {
       if (vm.newTodo.text && vm.newTodo.text.trim()) {
-        var todo = TodoService.addTodo(vm.newTodo);
+        Todo2Service.addTodo(vm.newTodo);
         loadTodos();
         resetForm();
         NotificationService.showSuccess("Todo added successfully!");
@@ -70,15 +76,13 @@
     }
 
     function deleteTodo(id) {
-      var deletedTodo = TodoService.deleteTodo(id);
-      if (deletedTodo) {
-        NotificationService.showSuccess("Todo deleted: " + deletedTodo.text);
-        loadTodos();
-      }
+      Todo2Service.deleteTodo(id);
+      NotificationService.showSuccess("Todo deleted successfully.");
+      loadTodos();
     }
 
     function toggleTodo(id) {
-      var updated = TodoService.toggleTodo(id);
+      var updated = Todo2Service.toggleTodo(id);
       var message = updated.completed
         ? "Todo completed!"
         : "Todo marked as active!";
@@ -108,19 +112,19 @@
 
     // Stats
     function getTotalCount() {
-      return TodoService.getTodoStats().total;
+      return Todo2Service.getTodoStats().total;
     }
 
     function getActiveCount() {
-      return TodoService.getTodoStats().active;
+      return Todo2Service.getTodoStats().active;
     }
 
     function getCompletedCount() {
-      return TodoService.getTodoStats().completed;
+      return Todo2Service.getTodoStats().completed;
     }
 
     function getCompletionRate() {
-      return TodoService.getTodoStats().completionRate;
+      return Todo2Service.getTodoStats().completionRate;
     }
 
     // Watch for changes
@@ -130,9 +134,25 @@
       },
       function (newTodos, oldTodos) {
         if (newTodos !== oldTodos) {
-          console.log("Todos changed:", TodoService.getTodoStats());
+          console.log("Todos changed:", Todo2Service.getTodoStats());
         }
       }
     );
+
+    function loadSampleData() {
+      const sampleTodos = [
+        { text: "Learn AngularJS", completed: true },
+        { text: "Build a todo app", completed: false },
+        { text: "Master $scope and services", completed: false },
+      ];
+
+      sampleTodos.forEach((todo) => {
+        Todo2Service.addTodo(todo);
+      });
+
+      loadTodos();
+
+      NotificationService.showSuccess("Welcome to your Todo App!");
+    }
   }
 })();

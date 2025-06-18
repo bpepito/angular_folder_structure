@@ -6,10 +6,10 @@
     .module("todoApp", [])
     .config(function () {
       // App configuration
-      console.log("TodoApp initialized");
+      //   console.log("TodoApp initialized");
     })
     .run(function () {
       // App run block
-      console.log("TodoApp running");
+      //   console.log("TodoApp running");
     });
 })();

@@ -53,7 +53,6 @@
       var todo = getTodoById(id);
       if (todo) {
         todo.completed = !todo.completed;
-        todo.completedAt = todo.completed ? new Date() : null;
         return angular.copy(todo);
       }
       return null;
@@ -76,7 +75,9 @@
     }
 
     function loadSampleData() {
-      var sampleTodos = [
+      if (todos.length > 0) return;
+
+      const sampleTodos = [
         { text: "Learn AngularJS", completed: true },
         { text: "Build a todo app", completed: false },
         { text: "Master $scope and services", completed: false },

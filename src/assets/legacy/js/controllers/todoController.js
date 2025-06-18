@@ -5,7 +5,7 @@
 
   TodoController.$inject = [
     "$scope",
-    // "TodoService",
+    "TodoService",
     "Todo2Service",
     "NotificationService",
     "StorageService",
@@ -13,7 +13,7 @@
 
   function TodoController(
     $scope,
-    // TodoService,
+    TodoService,
     Todo2Service,
     NotificationService,
     StorageService
@@ -112,19 +112,19 @@
 
     // Stats
     function getTotalCount() {
-      return Todo2Service.getTodoStats().total;
+      return TodoService.getTodoStats().total;
     }
 
     function getActiveCount() {
-      return Todo2Service.getTodoStats().active;
+      return TodoService.getTodoStats().active;
     }
 
     function getCompletedCount() {
-      return Todo2Service.getTodoStats().completed;
+      return TodoService.getTodoStats().completed;
     }
 
     function getCompletionRate() {
-      return Todo2Service.getTodoStats().completionRate;
+      return TodoService.getTodoStats().completionRate;
     }
 
     // Watch for changes

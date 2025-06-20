@@ -2,7 +2,12 @@ export interface Todo {
   id: number;
   text: string;
   completed: boolean;
-  createdAt: Date;
+  createdAt: Date | null;
+}
+
+export interface TodoInput {
+  text: string;
+  completed?: boolean;
 }
 
 export interface TodoStats {
@@ -16,10 +21,6 @@ export interface AppState {
   todos: Todo[];
   todoStats: TodoStats;
   nextId: number;
-
-  show: boolean;
-  message: string;
-  type: string;
 }
 
 export declare const todoStore: {
@@ -29,7 +30,6 @@ export declare const todoStore: {
 };
 
 export declare const setTodos: (todos: Todo[]) => any;
-export declare const addTodo: (todo: Todo) => any;
+export declare const addTodo: (todoInput: TodoInput) => any;
 export declare const deleteTodo: (id: number) => any;
 export declare const toggleTodo: (id: number) => any;
-export declare const getTodoStats: () => any;

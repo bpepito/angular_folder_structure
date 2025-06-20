@@ -7,16 +7,20 @@
     "$scope",
     "TodoService",
     "Todo2Service",
-    "NotificationService",
-    "StorageService",
+    // "NotificationService",
+    "Notification2Service",
+    // "StorageService",
+    "Storage2Service",
   ];
 
   function TodoController(
     $scope,
     TodoService,
     Todo2Service,
-    NotificationService,
-    StorageService
+    // NotificationService,
+    Notification2Service,
+    // StorageService,
+    Storage2Service
   ) {
     var vm = this;
 
@@ -24,7 +28,7 @@
     vm.todos = [];
     vm.newTodo = {};
     vm.currentFilter = "all";
-    vm.notification = NotificationService.getNotification();
+    vm.notification = Notification2Service.getNotification();
     vm.watchCollection = [];
 
     // Bindable methods
@@ -50,11 +54,17 @@
       resetForm();
 
       // Load saved filter
-      var savedFilter = StorageService.get("todoFilter");
+      var savedFilter = Storage2Service.get("todoFilter");
       if (savedFilter) {
         vm.currentFilter = savedFilter;
       }
     }
+
+    Notification2Service.getState$().subscribe((state) => {
+      $scope.$applyAsync(() => {
+        vm.notification = state;
+      });
+    });
 
     function loadTodos() {
       vm.todos = Todo2Service.getAllTodos();
@@ -71,28 +81,35 @@
         Todo2Service.addTodo(vm.newTodo);
         loadTodos();
         resetForm();
-        NotificationService.showSuccess("Todo added successfully!");
+        Notification2Service.showNotification(
+          "Todo added successfully!",
+          "success"
+        );
       }
     }
 
     function deleteTodo(id) {
       Todo2Service.deleteTodo(id);
-      NotificationService.showSuccess("Todo deleted successfully.");
+      Notification2Service.showNotification(
+        "Todo deleted successfully.",
+        "success"
+      );
       loadTodos();
     }
 
     function toggleTodo(id) {
-      var updated = Todo2Service.toggleTodo(id);
+      Todo2Service.toggleTodo(id);
+      var updated = Todo2Service.getAllTodos().find((todo) => todo.id === id);
       var message = updated.completed
         ? "Todo completed!"
         : "Todo marked as active!";
-      NotificationService.showSuccess(message);
+      Notification2Service.showNotification(message, "success");
       loadTodos();
     }
 
     function setFilter(filter) {
       vm.currentFilter = filter;
-      StorageService.set("todoFilter", filter);
+      Storage2Service.set("todoFilter", filter);
     }
 
     function getFilteredTodos() {
@@ -112,19 +129,19 @@
 
     // Stats
     function getTotalCount() {
-      return TodoService.getTodoStats().total;
+      return Todo2Service.getTodoStats().total;
     }
 
     function getActiveCount() {
-      return TodoService.getTodoStats().active;
+      return Todo2Service.getTodoStats().active;
     }
 
     function getCompletedCount() {
-      return TodoService.getTodoStats().completed;
+      return Todo2Service.getTodoStats().completed;
     }
 
     function getCompletionRate() {
-      return TodoService.getTodoStats().completionRate;
+      return Todo2Service.getTodoStats().completionRate;
     }
 
     // Watch for changes
@@ -152,7 +169,10 @@
 
       loadTodos();
 
-      NotificationService.showSuccess("Welcome to your Todo App!");
+      Notification2Service.showNotification(
+        "Welcome to your Todo App!",
+        "success"
+      );
     }
   }
 })();

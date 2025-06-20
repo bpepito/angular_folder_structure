@@ -1,0 +1,11 @@
+<p>notification works!</p>
+<div
+  class="notification"
+  [ngClass]="{
+    show: notification.show,
+    success: notification.type === 'success',
+    error: notification.type === 'error'
+  }"
+>
+  {{ notification.message }}
+</div>

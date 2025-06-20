@@ -1,0 +1,75 @@
+<p>todo works!</p>
+
+<div class="container">
+  <h1>My Todo List</h1>
+
+  <div class="add-todo">
+    <form name="todoForm" (ngSubmit)="addTodo()" #f="ngForm">
+      <input
+        type="text"
+        style="width: 582px"
+        placeholder="Enter a new todo..."
+        required
+        [(ngModel)]="newTodo.text"
+        name="text"
+      />
+      <button type="submit">Add Todo</button>
+    </form>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button
+      [ngClass]="{ active: currentFilter === 'all' }"
+      (click)="setFilter('all')"
+    >
+      All ({{ totalCount }})
+    </button>
+    <button
+      [ngClass]="{ active: currentFilter === 'active' }"
+      (click)="setFilter('active')"
+    >
+      Active ({{ activeCount }})
+    </button>
+    <button
+      [ngClass]="{ active: currentFilter === 'completed' }"
+      (click)="setFilter('completed')"
+    >
+      Completed ({{ completedCount }})
+    </button>
+  </div>
+
+  <!-- Todo List -->
+  <ul class="todo-list" *ngIf="getFilteredTodos().length > 0">
+    <li
+      class="todo-item"
+      *ngFor="let todo of getFilteredTodos()"
+      [ngClass]="{ completed: todo.completed }"
+    >
+      <input
+        type="checkbox"
+        [checked]="todo.completed"
+        (change)="toggleTodo(todo.id)"
+      />
+      <span class="todo-text" [ngClass]="{ completed: todo.completed }">{{
+        todo.text
+      }}</span>
+      <span class="todo-date">{{ todo.createdAt | date : "short" }}</span>
+      <button class="delete-btn" (click)="deleteTodo(todo.id)">Delete</button>
+    </li>
+  </ul>
+
+  <!-- Empty todo -->
+  <div class="empty-state" *ngIf="getFilteredTodos().length === 0">
+    <p *ngIf="currentFilter === 'all'">No todos yet. Add one above!</p>
+    <p *ngIf="currentFilter === 'active'">No active todos. Great job!</p>
+    <p *ngIf="currentFilter === 'completed'">No completed todos yet.</p>
+  </div>
+
+  <!-- Statistics -->
+  <div class="stats">
+    <strong>Statistics:</strong>
+    Total:{{ totalCount }} | Active: {{ activeCount }} | Completed:
+    {{ completedCount }} | CompletionRate: {{ completionRate }}%
+  </div>
+</div>

@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
+import { thunk } from "redux-thunk";
 
 // Actions
 const SHOW_NOTIFICATION = "SHOW_NOTIFICATION";
@@ -18,6 +18,7 @@ export const showNotification =
       dispatch({ type: HIDE_NOTIFICATION });
     }, 3000);
   };
+
 export const hideNotification = () => ({ type: HIDE_NOTIFICATION });
 
 // Reducer
@@ -46,4 +47,4 @@ export const notifReducer = (state = initialState, action) => {
   }
 };
 
-export const store = createStore(notifReducer, applyMiddleware(thunk));
+export const notifStore = createStore(notifReducer, applyMiddleware(thunk));

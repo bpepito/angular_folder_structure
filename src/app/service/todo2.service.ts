@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import {
   AppState as TodoState,
   Todo,
@@ -7,8 +7,8 @@ import {
   addTodo,
   deleteTodo,
   toggleTodo,
-  getTodoStats,
-} from '../store/todos/todo.store';
+  TodoInput,
+} from '../store/todo/todo.store';
 
 @Injectable({
   providedIn: 'root',
@@ -48,8 +48,8 @@ export class Todo2Service {
   }
 
   // Actions
-  addTodo(todo: Todo) {
-    todoStore.dispatch(addTodo(todo));
+  addTodo(todoInput: TodoInput) {
+    todoStore.dispatch(addTodo(todoInput));
   }
 
   deleteTodo(id: number) {
@@ -61,8 +61,32 @@ export class Todo2Service {
   }
 
   getTodoStats() {
-    console.log('running...');
-    todoStore.dispatch(getTodoStats());
-    return todoStore.getState().todoStats;
+    const total = todoStore.getState().todos.length;
+
+    const completed = todoStore
+      .getState()
+      .todos.filter((todo) => todo.completed).length;
+    const active = total - completed;
+    const completionRate =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
+    return {
+      total,
+      completed,
+      active,
+      completionRate,
+    };
+  }
+
+  getFilteredTodos(filter: string) {
+    switch (filter) {
+      case 'all':
+        return todoStore.getState().todos;
+      case 'active':
+        return todoStore.getState().todos.filter((todo) => !todo.completed);
+      case 'completed':
+        return todoStore.getState().todos.filter((todo) => todo.completed);
+      default:
+        return todoStore.getState().todos;
+    }
   }
 }

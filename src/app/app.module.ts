@@ -4,10 +4,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UpgradeModule } from '@angular/upgrade/static';
+import { TodoComponent } from './component/todo/todo.component';
+import { FormsModule } from '@angular/forms';
+import { NotificationComponent } from './component/notification/notification.component';
 
 @NgModule({
-  declarations: [AppComponent],
-  imports: [BrowserModule, AppRoutingModule, UpgradeModule],
+  declarations: [AppComponent, TodoComponent, NotificationComponent],
+  imports: [BrowserModule, AppRoutingModule, UpgradeModule, FormsModule],
   providers: [],
   bootstrap: [AppComponent],
 })

@@ -23,7 +23,7 @@ export const storageReducer = (state = initialState, action) => {
       };
     case REMOVE_ITEM: {
       const newItem = { ...state };
-      delete newItem[action.payload.key];
+      delete newItem[action.payload];
       return newItem;
     }
     default:
@@ -31,4 +31,4 @@ export const storageReducer = (state = initialState, action) => {
   }
 };
 
-export const store = createStore(storageReducer);
+export const storageStore = createStore(storageReducer);

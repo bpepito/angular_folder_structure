@@ -2,7 +2,7 @@ export interface AppState {
   [key: string]: any;
 }
 
-export declare const storageType: {
+export declare const storageStore: {
   getState(): AppState;
   dispatch(action: any): void;
   subscribe(listener: () => void): () => void;

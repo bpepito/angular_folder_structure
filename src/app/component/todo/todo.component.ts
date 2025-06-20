@@ -33,7 +33,15 @@ export class TodoComponent implements OnInit, OnDestroy {
       .subscribe((todos) => {
         this.todos = todos;
         this.updateStats();
+
+        const isFirstVisit = !this.storageService.get('sampleDataLoaded');
+
+        if (todos.length === 0 && isFirstVisit) {
+          this.loadSampleData();
+          this.storageService.set('sampleDataLoaded', true);
+        }
       });
+
     this.resetForm();
   }
 
@@ -102,5 +110,13 @@ export class TodoComponent implements OnInit, OnDestroy {
     this.completedCount = completed;
     this.activeCount = active;
     this.completionRate = completionRate;
+  }
+
+  loadSampleData() {
+    this.todoService.loadSampleData();
+    this.notificationService.showNotification(
+      'Welcome to your Todo App!',
+      'success'
+    );
   }
 }

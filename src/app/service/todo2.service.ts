@@ -89,4 +89,16 @@ export class Todo2Service {
         return todoStore.getState().todos;
     }
   }
+
+  loadSampleData() {
+    const sampleTodos: TodoInput[] = [
+      { text: 'Learn AngularJS', completed: true },
+      { text: 'Build a todo app', completed: false },
+      { text: 'Master $scope and services', completed: false },
+    ];
+
+    sampleTodos.forEach((todo) => {
+      this.addTodo(todo);
+    });
+  }
 }
